@@ -1,0 +1,29 @@
+Lowpoly 3D Worlds
+
+
+
+Lowpoly Asset Pack with a wide range of models for different types of environments.
+
+Includes example scene.
+To change the Camera from First Person to the static ones just turn off the FPSCam and Activate one of the Cameras in the SingleIslandCams folder.
+
+
+
+No textures are used.
+To change colors just drag a new material on to the model you want to change the color on.
+
+
+
+
+
+
+Support Mail
+
+FrostForgedAssets@gmail.com
+
+
+
+Twitter
+
+@FrostForged
+
