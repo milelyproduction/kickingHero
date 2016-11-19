@@ -8,7 +8,7 @@ public class HeroController : MonoBehaviour {
 	[SerializeField]private float runSpeed;
 	[SerializeField]private HeroAnim heroAnim;
 	private HeroStage stage;
-	private Vector3 dirRun, dirJump, dirKick;
+	private Vector3 dirRun, dirJump;
 	private float time;
 	[SerializeField]private Transform targetKick;
 	private Rigidbody rigid;
@@ -24,7 +24,6 @@ public class HeroController : MonoBehaviour {
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
 		dirRun = new Vector3 (runSpeed / 100f, 0f, 0f);
 		dirJump = dirRun + Vector3.up * 0.05f;
-		dirKick = new Vector3 ((runSpeed / 100f) * 5f, -0.2f, 0f);
 		rigid = GetComponent<Rigidbody> ();
 	}
 	
@@ -44,17 +43,24 @@ public class HeroController : MonoBehaviour {
 	}
 
 	private void OnCollisionEnter(Collision collision) {
-		rigid.useGravity = true;
-		if (stage == HeroStage.jump) {
-			setStage (HeroStage.run);
+		if (collision.transform.tag == "Target") {
+			rigid.useGravity = true;
+			if (stage == HeroStage.jump) {
+				setStage (HeroStage.run);
+			}
 		}
 	}
 
 	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
+		if (oldStage == newStage) return;
 		// Change Anim
 //		anim.SetBool (heroAnim.getAnim (oldStage), false);
 		anim.SetBool (heroAnim.getAnim (newStage), true);
 		time = 0f;
+
+		if (newStage == HeroStage.jump) {
+			willJump ();
+		}
 	}
 
 	private void onStart () {
@@ -65,10 +71,13 @@ public class HeroController : MonoBehaviour {
 		hero.transform.Translate (dirRun);
 	}
 
-	private void onJump () {
+	private void willJump () {
 		rigid.useGravity = false;
+		anim.speed = 0.2f;
+	}
+
+	private void onJump () {
 		if (time < 2.3f) {
-			anim.speed = 0.2f;
 			hero.transform.Translate (dirJump);
 			time += Time.deltaTime;
 		} else {
