@@ -7,9 +7,10 @@ public class HeroController : MonoBehaviour {
 	[SerializeField]private Animator anim;
 	[SerializeField]private float runSpeed;
 	[SerializeField]private HeroAnim heroAnim;
-	private HeroStage stage;
+	public HeroStage stage { get; private set; }
 	private Vector3 dirRun, dirJump;
 	private float time;
+	public float gatePower { get; private set; }
 	[SerializeField]private Transform targetKick;
 	private Rigidbody rigid;
 
@@ -44,23 +45,24 @@ public class HeroController : MonoBehaviour {
 
 	private void OnCollisionEnter(Collision collision) {
 		if (collision.transform.tag == "Target") {
-			rigid.useGravity = true;
-			if (stage == HeroStage.jump) {
+			if (stage == HeroStage.jump || stage == HeroStage.kick) {
 				setStage (HeroStage.run);
 			}
 		}
 	}
 
 	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
-		if (oldStage == newStage) return;
+		if (oldStage == newStage) {
+			return;
+		} else if (newStage == HeroStage.jump && !isWillJump ()) {
+			return;
+		} else if (oldStage == HeroStage.jump) {
+			didJump ();
+		}
 		// Change Anim
 //		anim.SetBool (heroAnim.getAnim (oldStage), false);
 		anim.SetBool (heroAnim.getAnim (newStage), true);
 		time = 0f;
-
-		if (newStage == HeroStage.jump) {
-			willJump ();
-		}
 	}
 
 	private void onStart () {
@@ -71,23 +73,34 @@ public class HeroController : MonoBehaviour {
 		hero.transform.Translate (dirRun);
 	}
 
-	private void willJump () {
+	private bool isWillJump () {
+		if (rigid.velocity.y < -0.5f) {
+			setStage (HeroStage.run);
+			return false;
+		}
+		gatePower = 0f;
 		rigid.useGravity = false;
 		anim.speed = 0.2f;
+		return true;
 	}
 
 	private void onJump () {
-		if (time < 2.3f) {
-			hero.transform.Translate (dirJump);
-			time += Time.deltaTime;
-		} else {
-			anim.speed = 1f;
-			hero.transform.position = Vector3.Lerp (hero.transform.position, targetKick.position, 0.25f);
+		hero.transform.Translate (dirJump);
+		time += Time.deltaTime;
+		gatePower = time * 1f / 2.3f;
+		if (gatePower > 1f) {
+			setStage (HeroStage.run);
 		}
 	}
 
-	private void onKick () {
+	private void didJump () {
+		gatePower = 0f;
+		anim.speed = 1f;
+		rigid.useGravity = true;
+	}
 
+	private void onKick () {
+		hero.transform.position = Vector3.Lerp (hero.transform.position, targetKick.position, 0.25f);
 	}
 
 	private void onStop () {

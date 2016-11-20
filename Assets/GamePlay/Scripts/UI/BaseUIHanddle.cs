@@ -13,5 +13,9 @@ public abstract class BaseUIHanddle : MonoBehaviour {
 		uiStart = main.getUIStart ();
 		uiPlay = main.getUIPlay ();
 		hero = main.getHeroController ();
+
+		onStart ();
 	}
+
+	protected virtual void onStart () {}
 }
