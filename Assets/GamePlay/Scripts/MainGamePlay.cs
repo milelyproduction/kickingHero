@@ -8,7 +8,7 @@ public class MainGamePlay : MonoBehaviour {
 	[SerializeField]private GameObject uiStart;
 	[SerializeField]private GameObject uiPlay;
 	[SerializeField]private GameObject hero;
-	[SerializeField]private Transform camera;
+	[SerializeField]private Transform mainCamera;
 	[SerializeField]private List<GameObject> pillars;
 	[SerializeField]private List<GameObject> prefabPillars;
 	private PlayUIHanddle playUIHanddle;
@@ -21,7 +21,7 @@ public class MainGamePlay : MonoBehaviour {
 	void Awake () {
 		playUIHanddle = GetComponent<PlayUIHanddle> ();
 		heroController = hero.GetComponent<HeroController> ();
-		posCamera = hero.transform.position - camera.position;
+		posCamera = hero.transform.position - mainCamera.position;
 		posCameraZoom = posCamera;
 		posCameraZoom.x += 4;
 		posCameraZoom.y -= 1;
@@ -33,9 +33,9 @@ public class MainGamePlay : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (heroController.stage == HeroStage.jump) {
-			camera.position = Vector3.Slerp (camera.position, hero.transform.position - posCameraZoom, 0.05f);
+			mainCamera.position = Vector3.Slerp (mainCamera.position, hero.transform.position - posCameraZoom, 0.05f);
 		} else {
-			camera.position = Vector3.Slerp (camera.position, hero.transform.position - posCamera, 0.5f);
+			mainCamera.position = Vector3.Slerp (mainCamera.position, hero.transform.position - posCamera, 0.5f);
 		}
 	}
 

@@ -23,7 +23,7 @@ namespace UnityStandardAssets.Utility
 			ParticleSystem[] systems = GetComponentsInChildren<ParticleSystem>();
 
             // find out the maximum lifetime of any particles in this effect
-			foreach (var system in systems)
+			foreach (ParticleSystem system in systems)
             {
                 m_MaxLifetime = Mathf.Max(system.startLifetime, m_MaxLifetime);
             }
@@ -39,9 +39,10 @@ namespace UnityStandardAssets.Utility
             Debug.Log("stopping " + name);
 
             // turn off emission
-			foreach (var system in systems)
+			foreach (ParticleSystem system in systems)
             {
-				system.enableEmission = false;
+				ParticleSystem.EmissionModule emis = system.emission;
+				emis.enabled = false;
             }
             BroadcastMessage("Extinguish", SendMessageOptions.DontRequireReceiver);
 

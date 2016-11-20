@@ -29,7 +29,11 @@ public class PlayUIHanddle : BaseUIHanddle {
 		if (hero.stage == HeroStage.kick) {
 			return;
 		} else if (hero.stage == HeroStage.jump) {
-			hero.setStage (HeroStage.kick);
+			if (sliderGatePower.value < 0.5f) {
+				hero.setStage (HeroStage.run);
+			} else {
+				hero.setStage (HeroStage.kick);
+			}
 			gatePower.SetActive (false);
 		} else {
 			txtJump.SetActive (false);
