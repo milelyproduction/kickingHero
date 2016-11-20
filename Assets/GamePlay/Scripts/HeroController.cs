@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class HeroController : MonoBehaviour {
 
@@ -7,16 +8,21 @@ public class HeroController : MonoBehaviour {
 	[SerializeField]private Animator anim;
 	[SerializeField]private float runSpeed;
 	[SerializeField]private HeroAnim heroAnim;
+	[SerializeField]private MainGamePlay main;
 	public HeroStage stage { get; private set; }
 	private Vector3 dirRun, dirJump;
 	private float time;
 	public float gatePower { get; private set; }
-	[SerializeField]private Transform targetKick;
+	[SerializeField]private List<Transform> targetKicks;
 	private Rigidbody rigid;
 
 	public void setStage(HeroStage stage) {
 		onChangeStage (this.stage, stage);
 		this.stage = stage;
+	}
+
+	public void addTarget (Transform transform) {
+		targetKicks.Add (transform);
 	}
 
 	// Use this for initialization
@@ -41,14 +47,26 @@ public class HeroController : MonoBehaviour {
 		} else {
 			onStop ();
 		}
+
+		if (hero.transform.position.y < -1f) {
+			main.endGame ();
+		}
 	}
 
 	private void OnCollisionEnter(Collision collision) {
 		if (collision.transform.tag == "Target") {
 			if (stage == HeroStage.jump || stage == HeroStage.kick) {
 				setStage (HeroStage.run);
+				if (collision.transform == targetKicks [0]) {
+					nextTarget ();
+				}
 			}
 		}
+	}
+
+	private void nextTarget () {
+		targetKicks.Remove (targetKicks [0]);
+		main.addScore ();
 	}
 
 	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
@@ -88,6 +106,7 @@ public class HeroController : MonoBehaviour {
 		hero.transform.Translate (dirJump);
 		time += Time.deltaTime;
 		gatePower = time * 1f / 2.3f;
+		main.setGatePower (gatePower);
 		if (gatePower > 1f) {
 			setStage (HeroStage.run);
 		}
@@ -97,10 +116,11 @@ public class HeroController : MonoBehaviour {
 		gatePower = 0f;
 		anim.speed = 1f;
 		rigid.useGravity = true;
+		main.didJump ();
 	}
 
 	private void onKick () {
-		hero.transform.position = Vector3.Lerp (hero.transform.position, targetKick.position, 0.25f);
+		hero.transform.position = Vector3.Lerp (hero.transform.position, targetKicks[0].position, 0.25f);
 	}
 
 	private void onStop () {

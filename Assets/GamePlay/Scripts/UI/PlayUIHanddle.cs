@@ -5,11 +5,16 @@ using System.Collections;
 public class PlayUIHanddle : BaseUIHanddle {
 
 	[SerializeField]private GameObject txtJump;
+	[SerializeField]private Text txtScore;
 	[SerializeField]private GameObject gatePower;
 	private Slider sliderGatePower;
 
 	protected override void onStart () {
 		sliderGatePower = gatePower.GetComponent<Slider> ();
+	}
+
+	public void setScore (int score) {
+		txtScore.text = score < 10 ? "0" + score : score.ToString ();
 	}
 
 	public void setValueGatePower (float value) {
@@ -21,7 +26,9 @@ public class PlayUIHanddle : BaseUIHanddle {
 	}
 
 	public void onJump () {
-		if (hero.stage == HeroStage.jump) {
+		if (hero.stage == HeroStage.kick) {
+			return;
+		} else if (hero.stage == HeroStage.jump) {
 			hero.setStage (HeroStage.kick);
 			gatePower.SetActive (false);
 		} else {
