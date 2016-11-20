@@ -19,6 +19,8 @@ public class MainGamePlay : MonoBehaviour {
 	void Update () {
 		if (heroController.stage == HeroStage.jump) {
 			playUIHanddle.setValueGatePower (heroController.gatePower);
+		} else {
+			playUIHanddle.setActiveGatePower (false);
 		}
 	}
 

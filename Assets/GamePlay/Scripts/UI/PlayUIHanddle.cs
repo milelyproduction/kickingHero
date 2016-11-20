@@ -16,6 +16,10 @@ public class PlayUIHanddle : BaseUIHanddle {
 		sliderGatePower.value = value;
 	}
 
+	public void setActiveGatePower (bool isActive) {
+		gatePower.SetActive (isActive);
+	}
+
 	public void onJump () {
 		if (hero.stage == HeroStage.jump) {
 			hero.setStage (HeroStage.kick);
