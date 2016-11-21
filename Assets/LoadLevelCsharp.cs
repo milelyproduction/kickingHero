@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class LoadLevelCsharp : MonoBehaviour 
@@ -6,8 +7,8 @@ public class LoadLevelCsharp : MonoBehaviour
 
 	public string levelName;
 
-	public void LoadLevelNow ( string x)
+	public void LoadLevelNow (string sceneName)
 	{
-		Application.LoadLevel (x);
+		SceneManager.LoadScene (sceneName);
 	}
 }

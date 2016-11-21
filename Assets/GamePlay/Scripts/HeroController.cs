@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class HeroController : MonoBehaviour {
 
@@ -7,15 +8,21 @@ public class HeroController : MonoBehaviour {
 	[SerializeField]private Animator anim;
 	[SerializeField]private float runSpeed;
 	[SerializeField]private HeroAnim heroAnim;
-	private HeroStage stage;
-	private Vector3 dirRun, dirJump, dirKick;
+	[SerializeField]private MainGamePlay main;
+	public HeroStage stage { get; private set; }
+	private Vector3 dirRun, dirJump;
 	private float time;
-	[SerializeField]private Transform targetKick;
+	public float gatePower { get; private set; }
+	[SerializeField]private List<Transform> targetKicks;
 	private Rigidbody rigid;
 
 	public void setStage(HeroStage stage) {
 		onChangeStage (this.stage, stage);
 		this.stage = stage;
+	}
+
+	public void addTarget (Transform transform) {
+		targetKicks.Add (transform);
 	}
 
 	// Use this for initialization
@@ -24,7 +31,6 @@ public class HeroController : MonoBehaviour {
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
 		dirRun = new Vector3 (runSpeed / 100f, 0f, 0f);
 		dirJump = dirRun + Vector3.up * 0.05f;
-		dirKick = new Vector3 ((runSpeed / 100f) * 5f, -0.2f, 0f);
 		rigid = GetComponent<Rigidbody> ();
 	}
 	
@@ -41,16 +47,36 @@ public class HeroController : MonoBehaviour {
 		} else {
 			onStop ();
 		}
-	}
 
-	private void OnCollisionEnter(Collision collision) {
-		rigid.useGravity = true;
-		if (stage == HeroStage.jump) {
-			setStage (HeroStage.run);
+		if (hero.transform.position.y < -1f) {
+			main.endGame ();
 		}
 	}
 
+	private void OnCollisionEnter(Collision collision) {
+		if (collision.transform.tag == "Target") {
+			if (stage == HeroStage.jump || stage == HeroStage.kick) {
+				setStage (HeroStage.run);
+				if (collision.transform == targetKicks [0]) {
+					nextTarget ();
+				}
+			}
+		}
+	}
+
+	private void nextTarget () {
+		targetKicks.Remove (targetKicks [0]);
+		main.addScore ();
+	}
+
 	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
+		if (oldStage == newStage) {
+			return;
+		} else if (newStage == HeroStage.jump && !isWillJump ()) {
+			return;
+		} else if (oldStage == HeroStage.jump) {
+			didJump ();
+		}
 		// Change Anim
 //		anim.SetBool (heroAnim.getAnim (oldStage), false);
 		anim.SetBool (heroAnim.getAnim (newStage), true);
@@ -65,20 +91,36 @@ public class HeroController : MonoBehaviour {
 		hero.transform.Translate (dirRun);
 	}
 
-	private void onJump () {
+	private bool isWillJump () {
+		if (rigid.velocity.y < -0.5f) {
+			setStage (HeroStage.run);
+			return false;
+		}
+		gatePower = 0f;
 		rigid.useGravity = false;
-		if (time < 2.3f) {
-			anim.speed = 0.2f;
-			hero.transform.Translate (dirJump);
-			time += Time.deltaTime;
-		} else {
-			anim.speed = 1f;
-			hero.transform.position = Vector3.Lerp (hero.transform.position, targetKick.position, 0.25f);
+		anim.speed = 0.2f;
+		return true;
+	}
+
+	private void onJump () {
+		hero.transform.Translate (dirJump);
+		time += Time.deltaTime;
+		gatePower = time * 1f / 2.3f;
+		main.setGatePower (gatePower);
+		if (gatePower > 1f) {
+			setStage (HeroStage.run);
 		}
 	}
 
-	private void onKick () {
+	private void didJump () {
+		gatePower = 0f;
+		anim.speed = 1f;
+		rigid.useGravity = true;
+		main.didJump ();
+	}
 
+	private void onKick () {
+		hero.transform.position = Vector3.Lerp (hero.transform.position, targetKicks[0].position, 0.25f);
 	}
 
 	private void onStop () {
