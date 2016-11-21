@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -7,11 +6,13 @@ public class MainGamePlay : MonoBehaviour {
 
 	[SerializeField]private GameObject uiStart;
 	[SerializeField]private GameObject uiPlay;
+	[SerializeField]private GameObject uiEnd;
 	[SerializeField]private GameObject hero;
 	[SerializeField]private Transform mainCamera;
 	[SerializeField]private List<GameObject> pillars;
 	[SerializeField]private List<GameObject> prefabPillars;
 	private PlayUIHanddle playUIHanddle;
+	private EndUIHanddle endUIHanddle;
 	private HeroController heroController;
 	private Vector3 posCamera, posCameraZoom;
 	private int score;
@@ -20,6 +21,7 @@ public class MainGamePlay : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		playUIHanddle = GetComponent<PlayUIHanddle> ();
+		endUIHanddle = GetComponent<EndUIHanddle> ();
 		heroController = hero.GetComponent<HeroController> ();
 		posCamera = hero.transform.position - mainCamera.position;
 		posCameraZoom = posCamera;
@@ -35,7 +37,9 @@ public class MainGamePlay : MonoBehaviour {
 		if (heroController.stage == HeroStage.jump) {
 			mainCamera.position = Vector3.Slerp (mainCamera.position, hero.transform.position - posCameraZoom, 0.05f);
 		} else {
-			mainCamera.position = Vector3.Slerp (mainCamera.position, hero.transform.position - posCamera, 0.5f);
+			Vector3 pos = hero.transform.position - posCamera;
+			pos.y = pos.y < 1f ? 1f : pos.y;
+			mainCamera.position = Vector3.Slerp (mainCamera.position, pos, 0.1f);
 		}
 	}
 
@@ -74,6 +78,9 @@ public class MainGamePlay : MonoBehaviour {
 	}
 
 	public void endGame () {
-		SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+		uiPlay.SetActive (false);
+		uiEnd.SetActive (true);
+		endUIHanddle.setScore (score);
+		heroController.end ();
 	}
 }

@@ -25,6 +25,13 @@ public class HeroController : MonoBehaviour {
 		targetKicks.Add (transform);
 	}
 
+	public void end () {
+		rigid.useGravity = false;
+		rigid.velocity = Vector3.zero;
+		setStage (HeroStage.stop);
+		hero.SetActive (false);
+	}
+
 	// Use this for initialization
 	private void Start () {
 		stage = HeroStage.start;
