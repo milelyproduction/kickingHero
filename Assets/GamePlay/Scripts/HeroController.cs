@@ -105,14 +105,14 @@ public class HeroController : MonoBehaviour {
 		}
 		gatePower = 0f;
 		rigid.useGravity = false;
-		anim.speed = 0.2f;
+		anim.speed = 0.5f;
 		return true;
 	}
 
 	private void onJump () {
 		hero.transform.Translate (dirJump);
 		time += Time.deltaTime;
-		gatePower = time * 1f / 2.3f;
+		gatePower = time * 1f / 1.15f;
 		main.setGatePower (gatePower);
 		if (gatePower > 1f) {
 			setStage (HeroStage.run);

@@ -17,6 +17,7 @@ public class MainGamePlay : MonoBehaviour {
 	private Vector3 posCamera, posCameraZoom;
 	private int score;
 	private float lastPillarX;
+	private float gapPillar;
 
 	// Use this for initialization
 	void Awake () {
@@ -30,6 +31,7 @@ public class MainGamePlay : MonoBehaviour {
 		posCameraZoom.z -= 4;
 		score = 0;
 		lastPillarX = 6;
+		gapPillar = 8;
 	}
 	
 	// Update is called once per frame
@@ -58,7 +60,7 @@ public class MainGamePlay : MonoBehaviour {
 	public void addScore () {
 		playUIHanddle.setScore (++score);
 
-		lastPillarX += 6;
+		lastPillarX += gapPillar;
 		GameObject pillar = pillars [0];
 		pillars.Remove (pillar);
 		GameObject.Destroy (pillar);
