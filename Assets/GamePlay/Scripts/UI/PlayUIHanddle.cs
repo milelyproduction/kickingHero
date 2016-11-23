@@ -35,7 +35,7 @@ public class PlayUIHanddle : BaseUIHanddle {
 				hero.setStage (HeroStage.kick);
 			}
 			gatePower.SetActive (false);
-		} else {
+		} else if (hero.isJumpAgain) {
 			txtJump.SetActive (false);
 			sliderGatePower.value = 0f;
 			gatePower.SetActive (true);
