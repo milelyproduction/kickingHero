@@ -30,7 +30,7 @@ public class MainGamePlay : MonoBehaviour {
 		posCameraZoom.y -= 1;
 		posCameraZoom.z -= 4;
 		score = 0;
-		lastPillarX = 6;
+		lastPillarX = 10;
 		gapPillar = 8;
 	}
 	

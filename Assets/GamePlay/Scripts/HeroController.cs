@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class HeroController : MonoBehaviour {
 
+	public bool isJumpAgain;
 	[SerializeField]private GameObject hero;
 	[SerializeField]private Animator anim;
 	[SerializeField]private float runSpeed;
@@ -37,8 +38,9 @@ public class HeroController : MonoBehaviour {
 		stage = HeroStage.start;
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
 		dirRun = new Vector3 (runSpeed / 100f, 0f, 0f);
-		dirJump = dirRun + Vector3.up * 0.05f;
+		dirJump = dirRun + Vector3.up * 0.08f;
 		rigid = GetComponent<Rigidbody> ();
+		isJumpAgain = true;
 	}
 	
 	// Update is called once per frame
@@ -60,8 +62,13 @@ public class HeroController : MonoBehaviour {
 		}
 	}
 
+	private void jumpAgain () {
+		isJumpAgain = true;
+	}
+
 	private void OnCollisionEnter(Collision collision) {
 		if (collision.transform.tag == "Target") {
+			Invoke ("jumpAgain", 0.1f);
 			if (stage == HeroStage.jump || stage == HeroStage.kick) {
 				setStage (HeroStage.run);
 				if (collision.transform == targetKicks [0]) {
@@ -106,6 +113,7 @@ public class HeroController : MonoBehaviour {
 		gatePower = 0f;
 		rigid.useGravity = false;
 		anim.speed = 0.5f;
+		isJumpAgain = false;
 		return true;
 	}
 
