@@ -15,7 +15,7 @@ public class HeroController : MonoBehaviour {
 	private float time;
 	public float gatePower { get; private set; }
 	[SerializeField]private List<Transform> targetKicks;
-	private Rigidbody rigid;
+	public Rigidbody rigid;
 
 	public void setStage(HeroStage stage) {
 		onChangeStage (this.stage, stage);
