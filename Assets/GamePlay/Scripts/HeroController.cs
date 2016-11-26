@@ -2,36 +2,25 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class HeroController : MonoBehaviour {
+public class HeroController : AbstractGamePlay {
 
-	public bool isJumpAgain;
-	[SerializeField]private GameObject hero;
-	[SerializeField]private Animator anim;
-	[SerializeField]private float runSpeed;
+	// Inputs inspector
+	[SerializeField]private GameObject heroObject;
+	[SerializeField]private Animator animator;
 	[SerializeField]private HeroAnim heroAnim;
-	[SerializeField]private MainGamePlay main;
-	public HeroStage stage { get; private set; }
-	private Vector3 dirRun, dirJump;
-	private float time;
-	public float gatePower { get; private set; }
+	[SerializeField]private float runSpeed;
 	[SerializeField]private List<Transform> targetKicks;
-	public Rigidbody rigid;
 
-	public void setStage(HeroStage stage) {
-		onChangeStage (this.stage, stage);
-		this.stage = stage;
-	}
+	// Instances variable set on start
+	private Vector3 dirRun, dirJump;
+	private Rigidbody rigid;
 
-	public void addTarget (Transform transform) {
-		targetKicks.Add (transform);
-	}
+	// variables
+	private HeroStage stage;
+	private float time;
+	private bool isJumpAgain;
 
-	public void end () {
-		rigid.useGravity = false;
-		rigid.velocity = Vector3.zero;
-		setStage (HeroStage.stop);
-		hero.SetActive (false);
-	}
+	public float gatePower { get; private set; }
 
 	// Use this for initialization
 	private void Start () {
@@ -39,12 +28,36 @@ public class HeroController : MonoBehaviour {
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
 		dirRun = new Vector3 (runSpeed / 100f, 0f, 0f);
 		dirJump = dirRun + Vector3.up * 0.08f;
-		rigid = GetComponent<Rigidbody> ();
+		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
 	}
-	
+
+	public bool isCanJump () {
+		return isJumpAgain && rigid.velocity.y > -0.5f;
+	}
+
+	public void addPillar (GameObject pillar) {
+		targetKicks.Add (pillar.GetComponent<PillarManager> ().getTarget ());
+	}
+
+	public HeroStage getStage () {
+		return stage;
+	}
+
+	public void setStage(HeroStage stage) {
+		onChangeStage (this.stage, stage);
+		this.stage = stage;
+	}
+
+	public void end () {
+		rigid.useGravity = false;
+		rigid.velocity = Vector3.zero;
+		setStage (HeroStage.stop);
+		heroObject.SetActive (false);
+	}
+
 	// Update is called once per frame
-	private void Update () {
+	public void update () {
 		if (stage == HeroStage.start) {
 			onStart ();
 		} else if (stage == HeroStage.run) {
@@ -57,44 +70,43 @@ public class HeroController : MonoBehaviour {
 			onStop ();
 		}
 
-		if (hero.transform.position.y < -1f) {
-			main.endGame ();
+		if (heroObject.transform.position.y < -1f && heroObject.activeSelf) {
+			end ();
+			getGamePlay ().endGame ();
 		}
 	}
 
-	private void jumpAgain () {
-		isJumpAgain = true;
+	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
+		if (oldStage == newStage || (newStage == HeroStage.jump && !isWillJump ())) {
+			return;
+		} else if (oldStage == HeroStage.jump) {
+			didJump ();
+		}
+		// Change Anim
+		animator.SetBool (heroAnim.getAnim (newStage), true);
+		time = 0f;
 	}
-
-	private void OnCollisionEnter(Collision collision) {
-		if (collision.transform.tag == "Target") {
+		
+	private void OnCollisionEnter (Collision collision) {
+		string tag = collision.transform.tag;
+		if (tag == "Target" || tag == "Pillar") {
 			Invoke ("jumpAgain", 0.1f);
 			if (stage == HeroStage.jump || stage == HeroStage.kick) {
 				setStage (HeroStage.run);
-				if (collision.transform == targetKicks [0]) {
-					nextTarget ();
-				}
+			}
+			if (collision.transform == targetKicks [0]) {
+				nextTarget ();
 			}
 		}
 	}
 
 	private void nextTarget () {
 		targetKicks.Remove (targetKicks [0]);
-		main.addScore ();
+		getGamePlay ().addScore ();
 	}
 
-	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
-		if (oldStage == newStage) {
-			return;
-		} else if (newStage == HeroStage.jump && !isWillJump ()) {
-			return;
-		} else if (oldStage == HeroStage.jump) {
-			didJump ();
-		}
-		// Change Anim
-//		anim.SetBool (heroAnim.getAnim (oldStage), false);
-		anim.SetBool (heroAnim.getAnim (newStage), true);
-		time = 0f;
+	private void jumpAgain () {
+		isJumpAgain = true;
 	}
 
 	private void onStart () {
@@ -102,26 +114,26 @@ public class HeroController : MonoBehaviour {
 	}
 
 	private void onRun () {
-		hero.transform.Translate (dirRun);
+		heroObject.transform.Translate (dirRun);
 	}
 
 	private bool isWillJump () {
-		if (rigid.velocity.y < -0.5f) {
+		if (!isCanJump ()) {
 			setStage (HeroStage.run);
 			return false;
 		}
 		gatePower = 0f;
 		rigid.useGravity = false;
-		anim.speed = 0.5f;
+		animator.speed = 0.5f;
 		isJumpAgain = false;
 		return true;
 	}
 
 	private void onJump () {
-		hero.transform.Translate (dirJump);
+		heroObject.transform.Translate (dirJump);
 		time += Time.deltaTime;
 		gatePower = time * 1f / 1.15f;
-		main.setGatePower (gatePower);
+		getGamePlay ().setGatePower (gatePower);
 		if (gatePower > 1f) {
 			setStage (HeroStage.run);
 		}
@@ -129,13 +141,13 @@ public class HeroController : MonoBehaviour {
 
 	private void didJump () {
 		gatePower = 0f;
-		anim.speed = 1f;
+		animator.speed = 1f;
 		rigid.useGravity = true;
-		main.didJump ();
+		getGamePlay ().didJump ();
 	}
 
 	private void onKick () {
-		hero.transform.position = Vector3.Lerp (hero.transform.position, targetKicks[0].position, 0.25f);
+		heroObject.transform.position = Vector3.Lerp (heroObject.transform.position, targetKicks[0].position, 0.25f);
 	}
 
 	private void onStop () {
