@@ -54,17 +54,19 @@ public class MainGamePlay : MonoBehaviour {
 	}
 
 	public void addScore () {
+		// Add score
 		instance.getUIPlayHanddle ().setScore (++score);
-
-		pillarLastX += pillarGap;
+		// Remove pillar's out of screen
 		GameObject pillar = instance.pillars [0];
 		instance.pillars.Remove (pillar);
 		GameObject.Destroy (pillar);
+		// Add new pillar
+		pillarLastX += pillarGap;
 		instance.pillars.Add (GameObject.Instantiate (instance.prefabPillars [Random.Range (0, instance.prefabPillars.Count - 1)]));
 		Vector3 posPillar = instance.pillars [instance.pillars.Count - 1].transform.position;
 		posPillar.x = pillarLastX;
 		instance.pillars [instance.pillars.Count - 1].transform.position = posPillar;
-
+		// Add new pillar target kick for hero
 		instance.getHeroController ().addPillar (instance.pillars [instance.pillars.Count - 1]);
 	}
 

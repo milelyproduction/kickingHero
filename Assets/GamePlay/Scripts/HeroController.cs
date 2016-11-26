@@ -51,7 +51,7 @@ public class HeroController : AbstractGamePlay {
 
 	public void end () {
 		rigid.useGravity = false;
-		rigid.velocity = Vector3.zero;
+		rigid.velocity = Vector3.up;
 		setStage (HeroStage.stop);
 		heroObject.SetActive (false);
 	}
@@ -88,14 +88,27 @@ public class HeroController : AbstractGamePlay {
 	}
 		
 	private void OnCollisionEnter (Collision collision) {
-		string tag = collision.transform.tag;
-		if (tag == "Target" || tag == "Pillar") {
+		enterPillar (collision);
+		enterEnemy (collision);
+	}
+
+	private void enterPillar (Collision collision) {
+		if (collision.transform.tag == "Target" || collision.transform.tag == "Pillar") {
 			Invoke ("jumpAgain", 0.1f);
 			if (stage == HeroStage.jump || stage == HeroStage.kick) {
 				setStage (HeroStage.run);
 			}
 			if (collision.transform == targetKicks [0]) {
 				nextTarget ();
+			}
+		}
+	}
+
+	private void enterEnemy (Collision collision) {
+		Debug.Log (collision.transform.tag);
+		if (collision.transform.tag == "Enemy") {
+			if (stage == HeroStage.kick) {
+				Destroy (collision.gameObject);
 			}
 		}
 	}
