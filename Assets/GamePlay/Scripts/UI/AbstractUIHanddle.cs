@@ -15,6 +15,10 @@ public abstract class AbstractUIHanddle : AbstractGamePlay {
 		return getGamePlay ().getInstance ().uiEnd;
 	}
 
+	protected GameObject getUISettingObject () {
+		return getGamePlay ().getInstance ().uiSetting;
+	}
+
 	protected HeroController getHeroController () {
 		return getGamePlay ().getInstance ().getHeroController ();
 	}

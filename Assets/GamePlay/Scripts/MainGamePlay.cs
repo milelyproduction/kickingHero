@@ -90,6 +90,7 @@ public class InstanceGameObject {
 	public GameObject uiStart;
 	public GameObject uiPlay;
 	public GameObject uiEnd;
+	public GameObject uiSetting;
 	public GameObject hero;
 	public Transform mainCamera;
 	public List<GameObject> pillars;

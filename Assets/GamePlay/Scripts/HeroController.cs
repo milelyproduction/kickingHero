@@ -105,7 +105,6 @@ public class HeroController : AbstractGamePlay {
 	}
 
 	private void enterEnemy (Collision collision) {
-		Debug.Log (collision.transform.tag);
 		if (collision.transform.tag == "Enemy") {
 			if (stage == HeroStage.kick) {
 				Destroy (collision.gameObject);
