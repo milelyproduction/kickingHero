@@ -189,7 +189,7 @@ public class HeroAnim {
 	public string getAnim (HeroStage stage) {
 		switch (stage) {
 		case HeroStage.start:
-			return idle;
+			return run;
 		case HeroStage.run:
 			return run;
 		case HeroStage.jump:

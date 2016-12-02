@@ -8,16 +8,4 @@ public class UIStartHanddle : AbstractUIHanddle {
 		getUIStartObject ().SetActive (false);
 		getUIPlayObject ().SetActive (true);
 	}
-
-	public void onSetting () {
-
-	}
-
-	public void onHelp () {
-
-	}
-
-	public void onGift () {
-
-	}
 }
