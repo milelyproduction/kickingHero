@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class EndUIHanddle : BaseUIHanddle {
+public class UIEndHanddle : AbstractUIHanddle {
 
 	[SerializeField]private Text txtScore;
 
