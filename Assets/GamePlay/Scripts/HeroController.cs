@@ -26,8 +26,7 @@ public class HeroController : AbstractGamePlay {
 	private void Start () {
 		stage = HeroStage.start;
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
-		dirRun = new Vector3 (runSpeed / 100f, 0f, 0f);
-		dirJump = dirRun + Vector3.up * 0.08f;
+		dirJump = Vector3.up * 0.1f;
 		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
 	}
@@ -47,6 +46,7 @@ public class HeroController : AbstractGamePlay {
 	public void setStage(HeroStage stage) {
 		onChangeStage (this.stage, stage);
 		this.stage = stage;
+		setRunDir ();
 	}
 
 	public void end () {
@@ -70,10 +70,16 @@ public class HeroController : AbstractGamePlay {
 			onStop ();
 		}
 
+		heroRotate ();
+
 		if (heroObject.transform.position.y < -1f && heroObject.activeSelf) {
 			end ();
 			getGamePlay ().endGame ();
 		}
+	}
+
+	private void heroRotate () {
+		heroObject.transform.rotation = getGamePlay ().getTranslateCircle ().focusCenter (heroObject.transform);
 	}
 
 	private void onChangeStage (HeroStage oldStage, HeroStage newStage) {
@@ -94,11 +100,23 @@ public class HeroController : AbstractGamePlay {
 
 	private void enterPillar (Collision collision) {
 		if (collision.transform.tag == "Target" || collision.transform.tag == "Pillar") {
-			Invoke ("jumpAgain", 0.1f);
 			if (stage == HeroStage.jump || stage == HeroStage.kick) {
+				Invoke ("jumpAgain", 0.1f);
 				setStage (HeroStage.run);
+				while (true) {
+					Vector3 hero = heroObject.transform.position;
+					Vector3 circle = getGamePlay ().getTranslateCircle ().nextPosition (hero);
+					if (
+						circle.x > hero.x - 0.15f && circle.x < hero.x + 0.15f &&
+						circle.z > hero.z - 0.15f && circle.z < hero.z + 0.15f
+					) {
+						getGamePlay ().getTranslateCircle ().nextPosition (hero);
+						getGamePlay ().getTranslateCircle ().nextPosition (hero);
+						break;
+					}
+				}
 			}
-			if (collision.transform == targetKicks [0]) {
+			if (targetKicks.Count > 0 && collision.transform == targetKicks [0]) {
 				nextTarget ();
 			}
 		}
@@ -117,16 +135,21 @@ public class HeroController : AbstractGamePlay {
 		getGamePlay ().addScore ();
 	}
 
+	public void setRunDir () {
+		dirRun = targetKicks [0].position - heroObject.transform.position;
+		dirRun = dirRun.normalized / 100;
+	}
+
 	private void jumpAgain () {
 		isJumpAgain = true;
 	}
 
 	private void onStart () {
-
+		heroObject.transform.position = getGamePlay ().getTranslateCircle ().nextPosition (heroObject.transform.position);
 	}
 
 	private void onRun () {
-		heroObject.transform.Translate (dirRun);
+		heroObject.transform.position = getGamePlay ().getTranslateCircle ().nextPosition (heroObject.transform.position);
 	}
 
 	private bool isWillJump () {
@@ -142,7 +165,8 @@ public class HeroController : AbstractGamePlay {
 	}
 
 	private void onJump () {
-		heroObject.transform.Translate (dirJump);
+		heroObject.transform.Translate (dirJump + dirRun * runSpeed);
+		heroObject.transform.position = getGamePlay ().getTranslateCircle ().nextPosition (heroObject.transform.position);
 		time += Time.deltaTime;
 		gatePower = time * 1f / 1.15f;
 		getGamePlay ().setGatePower (gatePower);
@@ -159,7 +183,7 @@ public class HeroController : AbstractGamePlay {
 	}
 
 	private void onKick () {
-		heroObject.transform.position = Vector3.Lerp (heroObject.transform.position, targetKicks[0].position, 0.25f);
+		heroObject.transform.position = Vector3.Lerp (heroObject.transform.position, targetKicks[0].position, 0.2f);
 	}
 
 	private void onStop () {

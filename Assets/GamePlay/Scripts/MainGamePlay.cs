@@ -7,14 +7,21 @@ public class MainGamePlay : MonoBehaviour {
 	// Inputs from Inspector
 	[SerializeField]private List<AbstractGamePlay> scripts;
 	[SerializeField]private InstanceGameObject instance;
+	[SerializeField]private TranslateCircle translateCircle;
+	[SerializeField]private Transform camera;
 
 	// Instances variable
 	private Vector3 posCamera, posCameraZoom;
-	private float pillarLastX, pillarGap;
+//	private float pillarLastX;
+	private float pillarGap;
 	private int score;
 
 	public InstanceGameObject getInstance () {
 		return instance;
+	}
+
+	public TranslateCircle getTranslateCircle () {
+		return translateCircle;
 	}
 
 	// Use this for initialization
@@ -25,15 +32,15 @@ public class MainGamePlay : MonoBehaviour {
 			instance.setScript (script);
 		}
 		// Set camera position
-		posCamera = instance.hero.transform.position - instance.mainCamera.position;
-		posCameraZoom = posCamera + new Vector3 (4f, -1f, -4f);
+		posCamera = camera.localPosition;
+		posCameraZoom = new Vector3 (0.8f, 0.5f, -4f);
 		// Initialize variables
 		init ();
 	}
-
+	
 	private void init () {
-		pillarLastX = 10;
-		pillarGap = 8;
+//		pillarLastX = 10;
+		pillarGap = 0.15f;
 		score = 0;
 	}
 	
@@ -45,12 +52,22 @@ public class MainGamePlay : MonoBehaviour {
 
 	private void cameraTranform () {
 		if (instance.getHeroController ().getStage () == HeroStage.jump) {
-			instance.mainCamera.position = Vector3.Slerp (instance.mainCamera.position, instance.hero.transform.position - posCameraZoom, 0.05f);
+			camera.localPosition = Vector3.Lerp (camera.localPosition, posCameraZoom, 0.05f);
 		} else {
-			Vector3 pos = instance.hero.transform.position - posCamera;
-			pos.y = pos.y < 1f ? 1f : pos.y;
-			instance.mainCamera.position = Vector3.Slerp (instance.mainCamera.position, pos, 0.1f);
+			camera.localPosition = Vector3.Lerp (camera.localPosition, posCamera, 0.1f);
 		}
+		instance.mainCamera.position = Vector3.Slerp (instance.mainCamera.position, instance.hero.transform.position, 0.1f);
+		instance.mainCamera.rotation = translateCircle.focusCenter (
+			instance.mainCamera
+		);
+	}
+
+	public void onStart () {
+		instance.pillars [0].transform.parent = instance.pillars [0].transform.parent.parent;
+		instance.hero.GetComponent<Rigidbody> ().useGravity = true;
+
+		addPillar (0.15f + pillarGap);
+		addPillar (pillarGap);
 	}
 
 	public void addScore () {
@@ -60,12 +77,25 @@ public class MainGamePlay : MonoBehaviour {
 		GameObject pillar = instance.pillars [0];
 		instance.pillars.Remove (pillar);
 		GameObject.Destroy (pillar);
+
+		addPillar (pillarGap);
+	}
+
+	private void addPillar (float pillarGap) {
 		// Add new pillar
-		pillarLastX += pillarGap;
-		instance.pillars.Add (GameObject.Instantiate (instance.prefabPillars [Random.Range (0, instance.prefabPillars.Count - 1)]));
-		Vector3 posPillar = instance.pillars [instance.pillars.Count - 1].transform.position;
-		posPillar.x = pillarLastX;
-		instance.pillars [instance.pillars.Count - 1].transform.position = posPillar;
+//		pillarLastX += pillarGap;
+//		instance.pillars.Add (GameObject.Instantiate (instance.prefabPillars [Random.Range (0, instance.prefabPillars.Count - 1)]));
+
+		instance.pillars.Add (
+			translateCircle.newPillar (
+				instance.prefabPillars [Random.Range (0, instance.prefabPillars.Count - 1)],
+				pillarGap
+			)
+		);
+
+//		Vector3 posPillar = instance.pillars [instance.pillars.Count - 1].transform.position;
+//		posPillar.x = pillarLastX;
+//		instance.pillars [instance.pillars.Count - 1].transform.position = posPillar;
 		// Add new pillar target kick for hero
 		instance.getHeroController ().addPillar (instance.pillars [instance.pillars.Count - 1]);
 	}
