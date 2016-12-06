@@ -107,11 +107,15 @@ public class HeroController : AbstractGamePlay {
 					Vector3 hero = heroObject.transform.position;
 					Vector3 circle = getGamePlay ().getTranslateCircle ().nextPosition (hero);
 					if (
-						circle.x > hero.x - 0.15f && circle.x < hero.x + 0.15f &&
-						circle.z > hero.z - 0.15f && circle.z < hero.z + 0.15f
+						circle.x > hero.x - 0.35f && circle.x < hero.x + 0.35f &&
+						circle.z > hero.z - 0.35f && circle.z < hero.z + 0.35f
 					) {
 						getGamePlay ().getTranslateCircle ().nextPosition (hero);
 						getGamePlay ().getTranslateCircle ().nextPosition (hero);
+						if ((circle.x < hero.x - 0.18f || circle.x > hero.x + 0.18f) &&
+						    (circle.z < hero.z - 0.18f || circle.z > hero.z + 0.18f)) {
+							getGamePlay ().getTranslateCircle ().nextPosition (hero);
+						}
 						break;
 					}
 				}
