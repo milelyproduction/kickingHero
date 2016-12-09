@@ -10,10 +10,10 @@ public class HeroController : AbstractGamePlay {
 	[SerializeField]private HeroAnim heroAnim;
 	[SerializeField]private float runSpeed;
 	[SerializeField]private List<Transform> targetKicks;
+	public Rigidbody rigid;
 
 	// Instances variable set on start
 	private Vector3 dirRun, dirJump;
-	private Rigidbody rigid;
 
 	// variables
 	private HeroStage stage;
@@ -27,7 +27,7 @@ public class HeroController : AbstractGamePlay {
 		stage = HeroStage.start;
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
 		dirJump = Vector3.up * 0.1f;
-		rigid = heroObject.GetComponent<Rigidbody> ();
+//		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
 	}
 
@@ -64,8 +64,10 @@ public class HeroController : AbstractGamePlay {
 			onRun ();
 		} else if (stage == HeroStage.jump) {
 			onJump ();
+			transform.position = Vector3.Lerp (transform.position, heroObject.transform.position, 1f);
 		} else if (stage == HeroStage.kick) {
 			onKick ();
+			transform.position = Vector3.Lerp (transform.position, heroObject.transform.position, 0.2f);
 		} else {
 			onStop ();
 		}

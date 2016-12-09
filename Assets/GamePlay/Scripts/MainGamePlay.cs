@@ -40,7 +40,7 @@ public class MainGamePlay : MonoBehaviour {
 	
 	private void init () {
 //		pillarLastX = 10;
-		pillarGap = 0.15f;
+		pillarGap = 0.13f;
 		score = 0;
 	}
 	
@@ -51,6 +51,14 @@ public class MainGamePlay : MonoBehaviour {
 	}
 
 	private void cameraTranform () {
+		if (instance.hero.transform.position.y < -0.3f) {
+			if (instance.uiPlay.activeSelf) {
+				endGame ();
+			}
+			return;
+		}
+
+
 		if (instance.getHeroController ().getStage () == HeroStage.jump) {
 			camera.localPosition = Vector3.Lerp (camera.localPosition, posCameraZoom, 0.05f);
 		} else {
@@ -64,7 +72,7 @@ public class MainGamePlay : MonoBehaviour {
 
 	public void onStart () {
 		instance.pillars [0].transform.parent = instance.pillars [0].transform.parent.parent;
-		instance.hero.GetComponent<Rigidbody> ().useGravity = true;
+		instance.getHeroController ().rigid.useGravity = true;
 
 		addPillar (0.15f + pillarGap);
 		addPillar (pillarGap);
