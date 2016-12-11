@@ -10,6 +10,7 @@ public class HeroController : AbstractGamePlay {
 	[SerializeField]private HeroAnim heroAnim;
 	[SerializeField]private float runSpeed;
 	[SerializeField]private List<Transform> targetKicks;
+	[SerializeField]private Collider colAttack;
 	public Rigidbody rigid;
 
 	// Instances variable set on start
@@ -26,7 +27,7 @@ public class HeroController : AbstractGamePlay {
 	private void Start () {
 		stage = HeroStage.start;
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
-		dirJump = Vector3.up * 0.1f;
+		dirJump = Vector3.up * 0.12f;
 //		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
 	}
@@ -108,15 +109,18 @@ public class HeroController : AbstractGamePlay {
 				while (true) {
 					Vector3 hero = heroObject.transform.position;
 					Vector3 circle = getGamePlay ().getTranslateCircle ().nextPosition (hero);
+					float area = 1f;
 					if (
-						circle.x > hero.x - 0.35f && circle.x < hero.x + 0.35f &&
-						circle.z > hero.z - 0.35f && circle.z < hero.z + 0.35f
+						circle.x > hero.x - area && circle.x < hero.x + area &&
+						circle.z > hero.z - area && circle.z < hero.z + area
 					) {
-						getGamePlay ().getTranslateCircle ().nextPosition (hero);
-						getGamePlay ().getTranslateCircle ().nextPosition (hero);
-						if ((circle.x < hero.x - 0.18f || circle.x > hero.x + 0.18f) &&
-						    (circle.z < hero.z - 0.18f || circle.z > hero.z + 0.18f)) {
-							getGamePlay ().getTranslateCircle ().nextPosition (hero);
+						circle = getGamePlay ().getTranslateCircle ().nextPosition (hero);
+						while (area > 0f) {
+							area -= 0.05f;
+							if ((circle.x < hero.x - area || circle.x > hero.x + area) ||
+								(circle.z < hero.z - area || circle.z > hero.z + area)) {
+								circle = getGamePlay ().getTranslateCircle ().nextPosition (hero);
+							}
 						}
 						break;
 					}
@@ -131,7 +135,10 @@ public class HeroController : AbstractGamePlay {
 	private void enterEnemy (Collision collision) {
 		if (collision.transform.tag == "Enemy") {
 			if (stage == HeroStage.kick) {
-				Destroy (collision.gameObject);
+//				Destroy (collision.gameObject);
+				collision.gameObject.SendMessage ("death");
+			} else {
+				death ();
 			}
 		}
 	}
@@ -192,8 +199,26 @@ public class HeroController : AbstractGamePlay {
 		heroObject.transform.position = Vector3.Lerp (heroObject.transform.position, targetKicks[0].position, 0.2f);
 	}
 
+	public void attack () {
+		if (stage == HeroStage.run) {
+			colAttack.enabled = true;
+			setStage (HeroStage.attack);
+			Invoke ("didAttack", 0.8f);
+		}
+	}
+
+	private void didAttack () {
+		colAttack.enabled = false;
+		setStage (HeroStage.run);
+	}
+
 	private void onStop () {
 
+	}
+
+	private void death () {
+		setStage (HeroStage.death);
+		getGamePlay ().endGame ();
 	}
 
 
@@ -204,7 +229,9 @@ public enum HeroStage {
 	run = 1,
 	jump = 2,
 	kick = 3,
-	stop = 4
+	stop = 4,
+	attack = 5,
+	death = 6
 }
 
 [System.Serializable]
@@ -215,6 +242,8 @@ public class HeroAnim {
 	public string jump = "Jump";
 	public string dash = "Dash";
 	public string relax = "Relax";
+	public string attack = "Attack";
+	public string death = "Die";
 
 	public string getAnim (HeroStage stage) {
 		switch (stage) {
@@ -228,6 +257,10 @@ public class HeroAnim {
 			return dash;
 		case HeroStage.stop:
 			return relax;
+		case HeroStage.attack:
+			return attack;
+		case HeroStage.death:
+			return death;
 		default:
 			return idle;
 		}

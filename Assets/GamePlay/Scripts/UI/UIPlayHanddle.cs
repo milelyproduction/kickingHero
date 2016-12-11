@@ -50,7 +50,7 @@ public class UIPlayHanddle : AbstractUIHanddle {
 	}
 
 	public void onAttact () {
-
+		getHeroController ().attack ();
 	}
 
 	public void onPuase () {

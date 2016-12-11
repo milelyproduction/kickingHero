@@ -40,7 +40,7 @@ public class MainGamePlay : MonoBehaviour {
 	
 	private void init () {
 //		pillarLastX = 10;
-		pillarGap = 0.13f;
+		pillarGap = 0.15f;
 		score = 0;
 	}
 	
