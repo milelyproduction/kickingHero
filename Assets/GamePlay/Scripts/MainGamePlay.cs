@@ -26,6 +26,7 @@ public class MainGamePlay : MonoBehaviour {
 
 	// Use this for initialization
 	private void Start () {
+		Time.timeScale = 1f;
 		// Initialize AbstractGamePlay
 		foreach (AbstractGamePlay script in scripts) {
 			script.setGamePlay (this);
@@ -120,6 +121,8 @@ public class MainGamePlay : MonoBehaviour {
 		instance.uiPlay.SetActive (false);
 		instance.uiEnd.SetActive (true);
 		instance.getUIEndHanddle ().setScore (score);
+
+		instance.getHeroController ().setStage (HeroStage.death);
 	}
 }
 
