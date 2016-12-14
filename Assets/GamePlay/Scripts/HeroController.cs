@@ -27,7 +27,7 @@ public class HeroController : AbstractGamePlay {
 	private void Start () {
 		stage = HeroStage.start;
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
-		dirJump = Vector3.up * 0.12f;
+		dirJump = Vector3.up * 0.1f;
 //		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
 	}
@@ -172,15 +172,15 @@ public class HeroController : AbstractGamePlay {
 		}
 		gatePower = 0f;
 		rigid.useGravity = false;
-		animator.speed = 0.5f;
+		animator.speed = 0.3f;
 		isJumpAgain = false;
 		return true;
 	}
 
 	private void onJump () {
 		heroObject.transform.Translate (dirJump + dirRun * runSpeed);
-		heroObject.transform.position = getGamePlay ().getTranslateCircle ().nextPosition (heroObject.transform.position);
-		time += Time.deltaTime;
+		heroObject.transform.position = getGamePlay ().getTranslateCircle ().nextPosition (heroObject.transform.position, 0.7f);
+		time += Time.deltaTime * 0.7f;
 		gatePower = time * 1f / 1.15f;
 		getGamePlay ().setGatePower (gatePower);
 		if (gatePower > 1f) {

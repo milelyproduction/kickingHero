@@ -21,7 +21,11 @@ public class TranslateCircle {
 	}
 
 	public Vector3 nextPosition (Vector3 pos) {
-		time += Time.deltaTime / 20;
+		return nextPosition (pos, 1f);
+	}
+
+	public Vector3 nextPosition (Vector3 pos, float speed) {
+		time += Time.deltaTime / 20 * speed;
 		time = time > maxTime ? time - maxTime : time;
 		pos.x = r * Mathf.Cos (time) + x;
 		pos.z = r * Mathf.Sin (time) + z;

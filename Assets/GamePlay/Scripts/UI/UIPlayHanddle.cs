@@ -33,6 +33,9 @@ public class UIPlayHanddle : AbstractUIHanddle {
 				getHeroController ().setStage (HeroStage.run);
 			} else {
 				getHeroController ().setStage (HeroStage.kick);
+				if (sliderPowerBar.value > 0.9f) {
+					getGamePlay ().shake ();
+				}
 			}
 			powerBar.SetActive (false);
 			break;

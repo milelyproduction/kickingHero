@@ -34,7 +34,7 @@ public class MainGamePlay : MonoBehaviour {
 		}
 		// Set camera position
 		posCamera = camera.localPosition;
-		posCameraZoom = new Vector3 (0.8f, 0.5f, -4f);
+		posCameraZoom = new Vector3 (0f, 2.5f, -3.4f);
 		// Initialize variables
 		init ();
 	}
@@ -51,6 +51,22 @@ public class MainGamePlay : MonoBehaviour {
 		cameraTranform ();
 	}
 
+	public void shake () {
+		if (shakeCount-- == 0) {
+			shakeCamera = Vector3.zero;
+			shakeCount = 5;
+			return;
+		} else if (shakeCount % 2 == 1) {
+			shakeCamera = Vector3.up * 0.3f;
+		} else {
+			shakeCamera = Vector3.down * 0.3f;
+		}
+		Debug.Log (shakeCount);
+		Invoke ("shake", 0.05f);
+	}
+
+	private int shakeCount = 5;
+	private Vector3 shakeCamera = Vector3.zero;
 	private void cameraTranform () {
 		if (instance.hero.transform.position.y < -0.3f) {
 			if (instance.uiPlay.activeSelf) {
@@ -58,13 +74,15 @@ public class MainGamePlay : MonoBehaviour {
 			}
 			return;
 		}
-
-
 		if (instance.getHeroController ().getStage () == HeroStage.jump) {
 			camera.localPosition = Vector3.Lerp (camera.localPosition, posCameraZoom, 0.05f);
 		} else {
-			camera.localPosition = Vector3.Lerp (camera.localPosition, posCamera, 0.1f);
+			camera.localPosition = Vector3.Lerp (camera.localPosition, posCamera + shakeCamera, 0.1f);
 		}
+		if (shakeCamera != Vector3.zero) {
+			camera.localPosition = Vector3.Lerp (camera.localPosition, camera.localPosition + shakeCamera, 1f);
+		}
+
 		instance.mainCamera.position = Vector3.Slerp (instance.mainCamera.position, instance.hero.transform.position, 0.1f);
 		instance.mainCamera.rotation = translateCircle.focusCenter (
 			instance.mainCamera
