@@ -3,6 +3,12 @@ using System.Collections;
 
 public abstract class AbstractUIHanddle : AbstractGamePlay {
 
+	private AudioSource audioSource;
+
+	private void Start () {
+		audioSource = gameObject.GetComponent<AudioSource> ();
+	}
+
 	protected GameObject getUIStartObject () {
 		return getGamePlay ().getInstance ().uiStart;
 	}
@@ -21,5 +27,10 @@ public abstract class AbstractUIHanddle : AbstractGamePlay {
 
 	protected HeroController getHeroController () {
 		return getGamePlay ().getInstance ().getHeroController ();
+	}
+
+	protected void playClip (AudioClip clip) {
+		audioSource.clip = clip;
+		audioSource.Play ();
 	}
 }

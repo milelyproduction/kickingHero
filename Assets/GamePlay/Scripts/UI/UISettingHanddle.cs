@@ -13,6 +13,8 @@ public class UISettingHanddle : AbstractUIHanddle {
 	[SerializeField]private List<AudioSource> audios;
 	[SerializeField]private List<Image> volumes;
 	[SerializeField]private GameObject bgPlay;
+	[SerializeField]private AudioClip soundSetting;
+	[SerializeField]private AudioClip soundBack;
 	private int count;
 	private int volume = 2;
 
@@ -28,6 +30,7 @@ public class UISettingHanddle : AbstractUIHanddle {
 				Time.timeScale = 0;
 				count = 3;
 			}
+			playClip (soundSetting);
 		}
 	}
 
@@ -39,6 +42,7 @@ public class UISettingHanddle : AbstractUIHanddle {
 		count = 3;
 		countDown ();
 		txtCountDown.enabled = true;
+		playClip (soundBack);
 	}
 
 	private void countDown () {
@@ -55,6 +59,7 @@ public class UISettingHanddle : AbstractUIHanddle {
 	}
 
 	public void back () {
+		playClip (soundBack);
 		Time.timeScale = 1;
 		getUISettingObject ().SetActive (false);
 		if (getHeroController ().getStage () == HeroStage.start) {

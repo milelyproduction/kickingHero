@@ -11,7 +11,9 @@ public class HeroController : AbstractGamePlay {
 	[SerializeField]private float runSpeed;
 	[SerializeField]private List<Transform> targetKicks;
 	[SerializeField]private Collider colAttack;
+	[SerializeField]private AudioClip soundJump, soundDown, soundDeath;
 	public Rigidbody rigid;
+	private AudioSource audioSource;
 
 	// Instances variable set on start
 	private Vector3 dirRun, dirJump;
@@ -30,6 +32,7 @@ public class HeroController : AbstractGamePlay {
 		dirJump = Vector3.up * 0.1f;
 //		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
+		audioSource = gameObject.GetComponent<AudioSource> ();
 	}
 
 	public bool isCanJump () {
@@ -81,6 +84,11 @@ public class HeroController : AbstractGamePlay {
 		}
 	}
 
+	private void playClip (AudioClip clip) {
+		audioSource.clip = clip;
+		audioSource.Play ();
+	}
+
 	private void heroRotate () {
 		heroObject.transform.rotation = getGamePlay ().getTranslateCircle ().focusCenter (heroObject.transform);
 	}
@@ -90,6 +98,8 @@ public class HeroController : AbstractGamePlay {
 			return;
 		} else if (oldStage == HeroStage.jump) {
 			didJump ();
+		} else if (newStage == HeroStage.death) {
+			playClip (soundDeath);
 		}
 		// Change Anim
 		animator.SetBool (heroAnim.getAnim (newStage), true);
@@ -122,6 +132,7 @@ public class HeroController : AbstractGamePlay {
 								circle = getGamePlay ().getTranslateCircle ().nextPosition (hero);
 							}
 						}
+						playClip (soundDown);
 						break;
 					}
 				}
@@ -174,6 +185,7 @@ public class HeroController : AbstractGamePlay {
 		rigid.useGravity = false;
 		animator.speed = 0.3f;
 		isJumpAgain = false;
+		playClip (soundJump);
 		return true;
 	}
 
