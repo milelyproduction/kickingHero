@@ -61,7 +61,6 @@ public class MainGamePlay : MonoBehaviour {
 		} else {
 			shakeCamera = Vector3.down * 0.3f;
 		}
-		Debug.Log (shakeCount);
 		Invoke ("shake", 0.05f);
 	}
 

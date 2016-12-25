@@ -29,7 +29,7 @@ public class HeroController : AbstractGamePlay {
 	private void Start () {
 		stage = HeroStage.start;
 		runSpeed = runSpeed <= 0f ? 1f : runSpeed;
-		dirJump = Vector3.up * 0.1f;
+		dirJump = Vector3.up * 0.05f;
 //		rigid = heroObject.GetComponent<Rigidbody> ();
 		isJumpAgain = true;
 		audioSource = gameObject.GetComponent<AudioSource> ();
@@ -205,6 +205,11 @@ public class HeroController : AbstractGamePlay {
 		animator.speed = 1f;
 		rigid.useGravity = true;
 		getGamePlay ().didJump ();
+	}
+
+	public void jumpFail () {
+		setStage (HeroStage.run);
+		Invoke ("jumpAgain", 0.1f);
 	}
 
 	private void onKick () {
