@@ -6,12 +6,14 @@ public class UIStartHanddle : AbstractUIHanddle {
 
 	[SerializeField]private GameObject btnStart;
 	[SerializeField]private Text txtCountDown; 
+	[SerializeField]private AudioClip soundPlay;
 	private int countDown = 3;
 
 	public void onPlay () {
 		btnStart.SetActive (false);
 		txtCountDown.enabled = true;
 		Invoke ("callbackCountDown", 1f);
+		playClip (soundPlay);
 	}
 
 	private void callbackCountDown () {

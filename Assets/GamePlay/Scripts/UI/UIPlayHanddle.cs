@@ -30,9 +30,12 @@ public class UIPlayHanddle : AbstractUIHanddle {
 		switch (getHeroController ().getStage ()) {
 		case HeroStage.jump:
 			if (sliderPowerBar.value < 0.5f) {
-				getHeroController ().setStage (HeroStage.run);
+				getHeroController ().jumpFail ();
 			} else {
 				getHeroController ().setStage (HeroStage.kick);
+				if (sliderPowerBar.value > 0.9f) {
+					getGamePlay ().shake ();
+				}
 			}
 			powerBar.SetActive (false);
 			break;
@@ -50,7 +53,7 @@ public class UIPlayHanddle : AbstractUIHanddle {
 	}
 
 	public void onAttact () {
-
+		getHeroController ().attack ();
 	}
 
 	public void onPuase () {

@@ -12,46 +12,60 @@ public class UISettingHanddle : AbstractUIHanddle {
 	[SerializeField]private Button btnMute;
 	[SerializeField]private List<AudioSource> audios;
 	[SerializeField]private List<Image> volumes;
+	[SerializeField]private GameObject bgPlay;
+	[SerializeField]private AudioClip soundSetting;
+	[SerializeField]private AudioClip soundBack;
 	private int count;
 	private int volume = 2;
 
 	public void setActive (bool isActive) {
-		bool isPlaying = (getHeroController ().getStage () != HeroStage.start);
+		bool isPlaying = (getHeroController ().getStage () != HeroStage.start && getHeroController ().getStage () != HeroStage.death);
 		btnPlay.SetActive (isPlaying);
 		getUISettingObject ().SetActive (isActive);
 		if (isActive) {
 			getUIStartObject ().SetActive (false);
 			getUIPlayObject ().SetActive (false);
+			getUIEndObject ().SetActive (false);
 			if (isPlaying) {
 				Time.timeScale = 0;
 				count = 3;
 			}
+			playClip (soundSetting);
 		}
 	}
 
 	public void playAgain () {
 		getUISettingObject ().SetActive (false);
 		getUIPlayObject ().SetActive (true);
-//		Invoke ("countDown", 1f);
-		Time.timeScale = 1;
+		bgPlay.SetActive (true);
+		Time.timeScale = 0.01f;
+		count = 3;
+		countDown ();
 		txtCountDown.enabled = true;
+		playClip (soundBack);
 	}
 
 	private void countDown () {
-		if (--count > 0) {
+		Debug.Log (count);
+		if (count > 0) {
 			txtCountDown.text = count.ToString ();
-			Invoke ("countDown", 1f);
+			Invoke ("countDown", 0.02f);
 		} else {
+			bgPlay.SetActive (false);
 			txtCountDown.enabled = false;
 			Time.timeScale = 1;
 		}
+		count--;
 	}
 
 	public void back () {
+		playClip (soundBack);
 		Time.timeScale = 1;
 		getUISettingObject ().SetActive (false);
 		if (getHeroController ().getStage () == HeroStage.start) {
 			getUIStartObject ().SetActive (true);
+		} else if (getHeroController ().getStage () == HeroStage.death) {
+			getUIEndObject ().SetActive (true);
 		} else {
 			SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
 		}
